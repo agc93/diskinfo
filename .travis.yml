@@ -1,0 +1,19 @@
+language: go
+
+go:
+- 1.x
+
+# script:
+# - go build
+
+os:
+- linux
+- osx
+- windows
+
+# deploy:
+#   provider: releases
+#   file: diskinfo
+#   skip_cleanup: true
+#   on:
+#     tags: true
