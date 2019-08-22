@@ -11,10 +11,10 @@ Never be confused as to whether `/dev/sdb` is `ata2` or `ata3` again.
 To run, simply run `./diskinfo` and you'll get a simple summary shown:
 
 ```bash
-> ./diskinfo 
-+----------+--------+-------------------------+--------------+--------+
-|   DISK   | DEVICE |          MODEL          |    SERIAL    |  SIZE  |
-+----------+--------+-------------------------+--------------+--------+
-| /dev/sda | ata2   | TOSHIBA_THNSNJ512GDNU_A | X61S10DXXXXX | 512 GB |
-+----------+--------+-------------------------+--------------+--------+
+> ./diskinfo
++----------+--------+-------------------------+--------------+----------+--------+
+|   DISK   | DEVICE |          MODEL          |    SERIAL    |  SPEED   |  SIZE  |
++----------+--------+-------------------------+--------------+----------+--------+
+| /dev/sda | ata2   | TOSHIBA_THNSNJ512GDNU_A | X61S10DXXXXX | 6.0 Gbps | 512 GB |
++----------+--------+-------------------------+--------------+----------+--------+
 ```

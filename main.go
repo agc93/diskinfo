@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -33,15 +34,16 @@ func main() {
 
 func printTable(disks []Disk) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Disk", "Device", "Model", "Serial", "Size"})
+	table.SetHeader([]string{"Disk", "Device", "Model", "Serial", "Speed", "Size"})
 	table.SetHeaderColor(
 		tablewriter.Colors{tablewriter.FgHiRedColor, tablewriter.Bold, tablewriter.BgBlackColor},
 		tablewriter.Colors{tablewriter.Normal},
 		tablewriter.Colors{tablewriter.Normal},
 		tablewriter.Colors{tablewriter.Normal},
+		tablewriter.Colors{tablewriter.Normal},
 		tablewriter.Colors{tablewriter.Bold})
 	for _, v := range disks {
-		table.Append([]string{v.devicePath, v.deviceNumber, v.model, v.serial, humanize.Bytes(uint64(v.size))})
+		table.Append([]string{v.devicePath, v.deviceNumber, v.model, v.serial, v.speed, humanize.Bytes(uint64(v.size))})
 	}
 	table.Render()
 }
@@ -51,7 +53,8 @@ func GetDiskInfo(fsRoot string) ([]Disk, error) {
 	if fsRoot == "" {
 		fsRoot = "/"
 	}
-	block, err := ghw.Block(ghw.WithChroot(fsRoot))
+	// block, err := ghw.Block(ghw.WithChroot(fsRoot))
+	block, err := ghw.Block()
 	if err != nil {
 		return nil, err
 	}
@@ -65,34 +68,27 @@ func GetDiskInfo(fsRoot string) ([]Disk, error) {
 		}).ToSlice(&availableDisks)
 
 	for _, disk := range availableDisks {
+		devNum := GetDeviceNumber(disk.Name)
 		info = append(info, Disk{
 			devicePath:   fmt.Sprintf("/dev/%s", disk.Name),
 			serial:       disk.SerialNumber,
 			size:         int64(disk.SizeBytes),
 			model:        disk.Model,
-			deviceNumber: GetDeviceNumber(disk.Name),
+			deviceNumber: devNum,
+			speed:        GetLinkSpeed(devNum),
 		})
 	}
 	return info, nil
 }
 
-func GetDeviceNumber(deviceName string) string {
-	fi, err := os.Readlink(fmt.Sprintf("/sys/block/%s", deviceName))
+func GetLinkSpeed(deviceNumber string) string {
+	linkNumber := strings.TrimPrefix(deviceNumber, "ata")
+	path := fmt.Sprintf("/sys/class/ata_link/link%s/sata_spd", linkNumber)
+	spd, err := ioutil.ReadFile(path)
 	if err != nil {
-		fmt.Println(err)
 		return ""
 	}
-	// segments := strings.Split(strings.TrimPrefix(fi, "/"), "/")
-	for _, v := range strings.Split(strings.TrimPrefix(fi, "/"), "/") {
-		if strings.HasPrefix(v, "ata") {
-			return v
-		}
-	}
-	return ""
-	// linkedName := From(segments).FirstWithT(func(s string) bool { return strings.HasPrefix(s, "ata") })
-	// fmt.Println(linkedName)
-	// return linkedName.data
-	// return ""
+	return strings.TrimSpace(string(spd))
 }
 
 type Disk struct {
@@ -101,4 +97,5 @@ type Disk struct {
 	deviceNumber string
 	size         int64
 	model        string
+	speed        string
 }
