@@ -18,3 +18,11 @@ To run, simply run `./diskinfo` and you'll get a simple summary shown:
 | /dev/sda | ata2   | TOSHIBA_THNSNJ512GDNU_A | X61S10DXXXXX | 6.0 Gbps | 512 GB |
 +----------+--------+-------------------------+--------------+----------+--------+
 ```
+
+`diskinfo` also supports a single `-o` option to control the output. Available outputs are `table` (default, shown above), `simple` (more compact and copy-paste friendly output) and `csv` (outputs CSV format, best combined with `tee`).
+
+```bash
+> ./diskinfo -o table
+> ./diskinfo -o simple
+> ./diskinfo -o csv
+```

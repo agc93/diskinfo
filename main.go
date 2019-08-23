@@ -4,17 +4,14 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"strings"
 
 	. "github.com/ahmetb/go-linq"
-	"github.com/dustin/go-humanize"
 	"github.com/jaypipes/ghw"
-	"github.com/olekukonko/tablewriter"
 )
 
 func main() {
-	// outputPtr := flag.String("o", "simple", "Output format {simple|lines|table};.")
+	outputPtr := flag.String("o", "table", "Output format {table|simple|csv};.")
 	flag.Parse()
 	// input := flag.Args()
 
@@ -28,24 +25,14 @@ func main() {
 	if err != nil {
 		return
 	}
-	printTable(disks)
-
-}
-
-func printTable(disks []Disk) {
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Disk", "Device", "Model", "Serial", "Speed", "Size"})
-	table.SetHeaderColor(
-		tablewriter.Colors{tablewriter.FgHiRedColor, tablewriter.Bold, tablewriter.BgBlackColor},
-		tablewriter.Colors{tablewriter.Normal},
-		tablewriter.Colors{tablewriter.Normal},
-		tablewriter.Colors{tablewriter.Normal},
-		tablewriter.Colors{tablewriter.Normal},
-		tablewriter.Colors{tablewriter.Bold})
-	for _, v := range disks {
-		table.Append([]string{v.devicePath, v.deviceNumber, v.model, v.serial, v.speed, humanize.Bytes(uint64(v.size))})
+	switch *outputPtr {
+	case "table":
+		printTable(disks)
+	case "simple":
+		printSimple(disks)
+	case "csv":
+		printCsv(disks)
 	}
-	table.Render()
 }
 
 // GetDiskInfo returns info about the host disks
